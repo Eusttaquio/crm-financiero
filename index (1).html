@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>CRM Comercial & Financiero</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-2: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --purple: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 85px; }
+
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(15, 23, 42, 0.94); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px; display: flex; flex-wrap: wrap; gap: 10px;
+      align-items: center; justify-content: space-between;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand h1 { font-size: 1.05rem; font-weight: 700; }
+    .badge-sync {
+      font-size: 0.72rem; padding: 3px 8px; border-radius: 999px;
+      background: rgba(245, 158, 11, 0.15); color: var(--amber); border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .badge-sync.connected {
+      background: rgba(16, 185, 129, 0.15); color: var(--green); border-color: rgba(16, 185, 129, 0.3);
+    }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      cursor: pointer; border: none; border-radius: 8px; padding: 8px 12px;
+      font-size: 0.82rem; font-weight: 600; transition: 0.15s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-purple:hover { filter: brightness(1.1); }
+    .btn-outline { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); }
+    .btn-wa { background: #16a34a; color: #fff; padding: 5px 9px; font-size: 0.75rem; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+    .btn-pay { background: #2563eb; color: #fff; padding: 5px 9px; font-size: 0.75rem; border-radius: 6px; }
+
+    .container { max-width: 1380px; margin: 0 auto; padding: 16px; }
+    .filters-bar {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+      gap: 10px; background: var(--surface); padding: 12px; border-radius: 12px;
+      border: 1px solid var(--border); margin-bottom: 16px;
+    }
+    .filter-group label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+    select, input, textarea {
+      width: 100%; background: var(--surface-2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 0.85rem;
+    }
+
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px; margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+    }
+    .kpi-title { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+    .kpi-value { font-size: 1.35rem; font-weight: 800; margin: 6px 0 4px; }
+    .kpi-sub { font-size: 0.78rem; color: var(--muted); }
+
+    .tabs {
+      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      background: transparent; color: var(--muted); padding: 8px 14px; border-radius: 8px; white-space: nowrap;
+    }
+    .tab-btn.active { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+
+    .bucket-section {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      margin-bottom: 16px; overflow: hidden;
+    }
+    .bucket-header {
+      padding: 12px 16px; background: var(--surface-2); border-bottom: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .bucket-title { font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+    .bucket-totals { font-size: 0.8rem; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
+    .bucket-totals span strong { color: var(--text); }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid rgba(51, 65, 85, 0.5); white-space: nowrap; }
+    th { color: var(--muted); font-size: 0.72rem; text-transform: uppercase; background: rgba(15, 23, 42, 0.4); }
+    tr:hover { background: rgba(30, 41, 59, 0.45); }
+
+    .pill { padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; display: inline-block; }
+    .pill-in { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+    .pill-out { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+    .pill-op { background: rgba(59, 130, 246, 0.15); color: var(--primary); }
+    .pill-bank { background: rgba(139, 92, 246, 0.18); color: #c4b5fd; }
+    .pill-st-COBRADO { background: rgba(16, 185, 129, 0.18); color: var(--green); }
+    .pill-st-PARCIAL { background: rgba(245, 158, 11, 0.18); color: var(--amber); }
+    .pill-st-PENDIENTE { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; }
+    .pill-st-VENCIDO { background: rgba(239, 68, 68, 0.18); color: var(--red); }
+
+    /* Flujo Proyectado Controls & Chart */
+    .cf-controls {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px; margin-bottom: 16px;
+    }
+    .cf-controls .fg { min-width: 150px; flex: 1; }
+    .cf-controls label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+    .chart-box {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 16px; margin-bottom: 16px;
+    }
+    .bars-container {
+      display: flex; align-items: flex-end; gap: 12px; height: 190px;
+      padding: 20px 10px 6px; border-bottom: 1px solid var(--border); overflow-x: auto;
+    }
+    .bar-col {
+      flex: 1; min-width: 74px; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end;
+    }
+    .bar-pair { display: flex; align-items: flex-end; gap: 4px; height: 140px; width: 100%; justify-content: center; }
+    .bar-in { width: 18px; background: var(--green); border-radius: 4px 4px 0 0; min-height: 2px; transition: 0.2s; }
+    .bar-out { width: 18px; background: var(--red); border-radius: 4px 4px 0 0; min-height: 2px; transition: 0.2s; }
+    .bar-lbl { font-size: 0.7rem; color: var(--muted); text-align: center; }
+
+    .matrix-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+    .cat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .cat-card h3 { font-size: 0.95rem; margin-bottom: 10px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+    .cat-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 4px 0; }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(2, 6, 23, 0.82); z-index: 100;
+      display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      width: 100%; max-width: 680px; max-height: 92vh; overflow-y: auto; padding: 20px;
+    }
+    .modal h2 { font-size: 1.05rem; margin-bottom: 14px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+    .subtabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .subtab-btn { background: var(--surface-2); color: var(--muted); padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; }
+    .subtab-btn.active { background: var(--primary); color: #fff; }
+
+    .mobile-fab {
+      position: fixed; bottom: 16px; right: 16px; z-index: 60;
+      background: var(--primary); color: #fff; padding: 12px 18px;
+      border-radius: 999px; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+      font-size: 0.9rem; font-weight: 700;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .kpi-value { font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>📊 CRM Comercial & Financiero</h1>
+    <span id="syncStatus" class="badge-sync">Modo Local (Sin vincular)</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn-outline" onclick="openModal('modalConfig')">⚙️ Conectar Sheets</button>
+    <button class="btn-outline" onclick="syncFromSheets()">🔄 Sincronizar</button>
+    <button class="btn-purple" onclick="openBatchModal()">📥 Importar Lote / Cheques</button>
+    <button class="btn-primary" onclick="openNewOpModal()">+ Nueva Operación</button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Filtros Globales -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Buscar Cliente / Cheque / Banco</label>
+      <input type="text" id="fSearch" placeholder="Ej: FL, CH12, Galicia..." oninput="renderAll()" />
+    </div>
+    <div class="filter-group">
+      <label>Operador</label>
+      <select id="fOperador" onchange="renderAll()">
+        <option value="TODOS">Todos (CRE + MC)</option>
+        <option value="CRE">CRE</option>
+        <option value="MC">MC</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Moneda</label>
+      <select id="fMoneda" onchange="renderAll()">
+        <option value="TODAS">Todas (ARS + USD)</option>
+        <option value="ARS">ARS ($)</option>
+        <option value="USD">USD (US$)</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Tipo Flujo</label>
+      <select id="fTipo" onchange="renderAll()">
+        <option value="TODOS">Ingresos y Egresos</option>
+        <option value="INGRESO">INGRESO</option>
+        <option value="EGRESO">EGRESO</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Categoría</label>
+      <select id="fCategoria" onchange="renderAll()">
+        <option value="TODAS">Todas las Categorías</option>
+        <option value="OP.FINANCIERA">OP.FINANCIERA</option>
+        <option value="LOTEO">LOTEO</option>
+        <option value="SERVICIOS">SERVICIOS</option>
+        <option value="ADMIN.">ADMIN.</option>
+        <option value="COMERCIAL">COMERCIAL</option>
+        <option value="INVERSIÓN">INVERSIÓN</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Banco</label>
+      <select id="fBanco" onchange="renderAll()">
+        <option value="TODOS">Todos los Bancos</option>
+        <option value="Banco Macro">Banco Macro</option>
+        <option value="Banco Galicia">Banco Galicia</option>
+        <option value="Banco Nación">Banco Nación</option>
+        <option value="Banco Santander">Banco Santander</option>
+        <option value="BBVA">BBVA</option>
+        <option value="Banco Provincia">Banco Provincia</option>
+        <option value="Banco Credicoop">Banco Credicoop</option>
+        <option value="Banco Patagonia">Banco Patagonia</option>
+        <option value="Brubank / Digital">Brubank / Digital</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- KPIs Ejecutivos -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Pestañas -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="bandeja" onclick="switchTab('bandeja', this)">📋 Bandeja Operativa Diaria</button>
+    <button class="tab-btn" data-tab="flujo" onclick="switchTab('flujo', this)">📈 Flujo Proyectado Semanal / Mensual</button>
+    <button class="tab-btn" data-tab="categorias" onclick="switchTab('categorias', this)">📊 Categoría × Ingreso/Egreso</button>
+    <button class="tab-btn" data-tab="clientes" onclick="switchTab('clientes', this)">🗂️ Clientes, Scoring & Legajos</button>
+  </div>
+
+  <!-- TAB 1: Bandeja Operativa -->
+  <div id="tab-bandeja"></div>
+
+  <!-- TAB 2: Flujo Proyectado Semanal/Mensual -->
+  <div id="tab-flujo" style="display:none;"></div>
+
+  <!-- TAB 3: Matriz Categoría x Ingreso/Egreso -->
+  <div id="tab-categorias" style="display:none;"></div>
+
+  <!-- TAB 4: Clientes & Legajos -->
+  <div id="tab-clientes" style="display:none;"></div>
+</div>
+
+<button class="mobile-fab" onclick="openBatchModal()">📥 Lote</button>
+
+<!-- MODAL: Configurar URL Apps Script -->
+<div class="modal-backdrop" id="modalConfig">
+  <div class="modal" style="max-width:480px;">
+    <h2>🔗 Conectar con Google Sheets (Apps Script)</h2>
+    <div class="form-group">
+      <label>URL de Implementación Web App (/exec)</label>
+      <input type="url" id="inputScriptUrl" placeholder="https://script.google.com/macros/s/.../exec" />
+    </div>
+    <p style="font-size:0.78rem; color:var(--muted); margin-top:8px;">
+      Pegá la URL obtenida al implementar <strong>apps_script_backend.gs</strong> como Aplicación Web con acceso para <em>Cualquier persona</em>.
+    </p>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modalConfig')">Cancelar</button>
+      <button class="btn-primary" onclick="saveScriptUrl()">Guardar y Sincronizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Registrar Cobro / Entrega Parcial -->
+<div class="modal-backdrop" id="modalCobro">
+  <div class="modal" style="max-width:500px;">
+    <h2>💵 Registrar Cobro / Entrega Parcial</h2>
+    <input type="hidden" id="cobroIdOp" />
+    <div class="form-grid">
+      <div class="form-group form-full">
+        <label>Operación / Cliente</label>
+        <input type="text" id="cobroInfo" disabled />
+      </div>
+      <div class="form-group">
+        <label>Monto Pactado Total</label>
+        <input type="text" id="cobroPactado" disabled />
+      </div>
+      <div class="form-group">
+        <label>Ya Cobrado Anteriormente</label>
+        <input type="text" id="cobroPrevio" disabled />
+      </div>
+      <div class="form-group">
+        <label>Nuevo Importe que Ingresa Hoy</label>
+        <input type="number" step="0.01" id="cobroEntrega" oninput="calcSaldoPreview()" />
+      </div>
+      <div class="form-group">
+        <label>Fecha Real de Pago</label>
+        <input type="date" id="cobroFechaReal" />
+      </div>
+      <div class="form-group form-full">
+        <label>Nuevo Saldo Pendiente Estimado</label>
+        <input type="text" id="cobroSaldoPreview" disabled style="font-weight:700; color:var(--amber);" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modalCobro')">Cancelar</button>
+      <button class="btn-primary" onclick="confirmarCobro()">Confirmar Movimiento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nueva Operación Individual -->
+<div class="modal-backdrop" id="modalNewOp">
+  <div class="modal" style="max-width:540px;">
+    <h2>➕ Nueva Operación Individual</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Fecha Vencimiento</label>
+        <input type="date" id="newFecha" />
+      </div>
+      <div class="form-group">
+        <label>Tipo de Flujo</label>
+        <select id="newTipo">
+          <option value="INGRESO">INGRESO</option>
+          <option value="EGRESO">EGRESO</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
+        <select id="newCategoria">
+          <option value="OP.FINANCIERA">OP.FINANCIERA</option>
+          <option value="LOTEO">LOTEO</option>
+          <option value="SERVICIOS">SERVICIOS</option>
+          <option value="ADMIN.">ADMIN.</option>
+          <option value="COMERCIAL">COMERCIAL</option>
+          <option value="INVERSIÓN">INVERSIÓN</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Subcategoría</label>
+        <select id="newSubcategoria">
+          <option value="CH/VENTA">CH/VENTA</option>
+          <option value="LOTEO">LOTEO</option>
+          <option value="ADMIN.">ADMIN.</option>
+          <option value="PIRAPYTA">PIRAPYTA</option>
+          <option value="FAECYS/CEP">FAECYS/CEP</option>
+          <option value="HONORARIOS">HONORARIOS</option>
+          <option value="PROVEEDORES">PROVEEDORES</option>
+          <option value="OTROS">OTROS</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cliente / Entidad</label>
+        <input type="text" id="newCliente" placeholder="Ej: FL Operaciones S.A." />
+      </div>
+      <div class="form-group">
+        <label>Detalle / Nro Cheque</label>
+        <input type="text" id="newDetalle" placeholder="Ej: COBRO FL (CH15)" />
+      </div>
+      <div class="form-group">
+        <label>Banco</label>
+        <select id="newBanco">
+          <option value="-">- (Sin banco / Efectivo)</option>
+          <option value="Banco Macro">Banco Macro</option>
+          <option value="Banco Galicia">Banco Galicia</option>
+          <option value="Banco Nación">Banco Nación</option>
+          <option value="Banco Santander">Banco Santander</option>
+          <option value="BBVA">BBVA</option>
+          <option value="Banco Provincia">Banco Provincia</option>
+          <option value="Banco Credicoop">Banco Credicoop</option>
+          <option value="Banco Patagonia">Banco Patagonia</option>
+          <option value="Brubank / Digital">Brubank / Digital</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Moneda</label>
+        <select id="newMoneda">
+          <option value="ARS">ARS ($)</option>
+          <option value="USD">USD (US$)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Monto Pactado</label>
+        <input type="number" step="0.01" id="newMonto" placeholder="0.00" />
+      </div>
+      <div class="form-group">
+        <label>Operador</label>
+        <select id="newOperador">
+          <option value="MC">MC</option>
+          <option value="CRE">CRE</option>
+        </select>
+      </div>
+      <div class="form-group form-full">
+        <label>Teléfono WhatsApp (549...)</label>
+        <input type="text" id="newTelefono" placeholder="5493764..." />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modalNewOp')">Cancelar</button>
+      <button class="btn-primary" onclick="guardarNuevaOperacion()">Guardar Operación</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Importador Masivo de Cheques / Cuotas -->
+<div class="modal-backdrop" id="modalBatch">
+  <div class="modal">
+    <h2>📥 Importador Masivo de Cheques y Cuotas</h2>
+    
+    <!-- Datos Comunes del Lote -->
+    <div class="form-grid" style="margin-bottom:12px; background:var(--surface-2); padding:12px; border-radius:10px;">
+      <div class="form-group">
+        <label>Cliente / Cedente</label>
+        <input type="text" id="batchCliente" placeholder="Ej: FL Operaciones S.A." />
+      </div>
+      <div class="form-group">
+        <label>Operador / Categoría / Moneda</label>
+        <div style="display:flex; gap:6px;">
+          <select id="batchOperador"><option value="MC">MC</option><option value="CRE">CRE</option></select>
+          <select id="batchCategoria"><option value="OP.FINANCIERA">OP.FINANCIERA</option><option value="LOTEO">LOTEO</option><option value="SERVICIOS">SERVICIOS</option></select>
+          <select id="batchMoneda"><option value="ARS">ARS</option><option value="USD">USD</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Banco por defecto</label>
+        <select id="batchBancoDefault">
+          <option value="Banco Macro">Banco Macro</option>
+          <option value="Banco Galicia">Banco Galicia</option>
+          <option value="Banco Nación">Banco Nación</option>
+          <option value="Banco Santander">Banco Santander</option>
+          <option value="BBVA">BBVA</option>
+          <option value="Banco Provincia">Banco Provincia</option>
+          <option value="Banco Credicoop">Banco Credicoop</option>
+          <option value="Banco Patagonia">Banco Patagonia</option>
+          <option value="Brubank / Digital">Brubank / Digital</option>
+          <option value="-">- (Sin banco)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Teléfono WhatsApp Cliente</label>
+        <input type="text" id="batchTelefono" placeholder="5493764..." />
+      </div>
+    </div>
+
+    <!-- Subtabs: Pegado Excel vs Generador Serie -->
+    <div class="subtabs">
+      <button class="subtab-btn active" id="btnSubPaste" onclick="switchBatchMode('paste')">📋 Pegar desde Excel / Sheets</button>
+      <button class="subtab-btn" id="btnSubSeries" onclick="switchBatchMode('series')">⚡ Generar Serie de Cheques / Cuotas</button>
+    </div>
+
+    <div id="batchModePaste">
+      <div class="form-group">
+        <label>Pegá filas con formato: <code>Fecha (AAAA-MM-DD o DD/MM/AAAA) [TAB o ;] Detalle/NroCheque [TAB o ;] Banco [TAB o ;] Monto</code></label>
+        <textarea id="batchRawText" rows="4" placeholder="2026-12-05&#9;CH-4501&#9;Banco Galicia&#9;3500000&#10;2026-12-12&#9;CH-4502&#9;Banco Macro&#9;4200000"></textarea>
+      </div>
+      <button class="btn-outline" style="margin-top:8px;" onclick="parseBatchPaste()">🔍 Procesar y Previsualizar Filas</button>
+    </div>
+
+    <div id="batchModeSeries" style="display:none;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Fecha 1er Vencimiento</label>
+          <input type="date" id="serFecha1" />
+        </div>
+        <div class="form-group">
+          <label>Cantidad de Valores / Cuotas</label>
+          <input type="number" id="serCant" value="4" min="1" max="60" />
+        </div>
+        <div class="form-group">
+          <label>Cada cuántos días</label>
+          <select id="serDias">
+            <option value="7">Cada 7 días (Semanal)</option>
+            <option value="15">Cada 15 días (Quincenal)</option>
+            <option value="30" selected>Cada 30 días (Mensual)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Importe por Valor / Cuota</label>
+          <input type="number" step="0.01" id="serMonto" placeholder="1500000" />
+        </div>
+        <div class="form-group form-full">
+          <label>Prefijo Detalle (ej. COBRO FL CH)</label>
+          <input type="text" id="serPrefijo" value="VALOR CARTERA #" />
+        </div>
+      </div>
+      <button class="btn-outline" style="margin-top:8px;" onclick="generateBatchSeries()">⚡ Generar Grilla Previa</button>
+    </div>
+
+    <!-- Vista Previa Lote -->
+    <div id="batchPreviewWrap" style="margin-top:14px; display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <strong style="font-size:0.85rem;">Vista Previa (<span id="batchCount">0</span> registros)</strong>
+        <strong style="font-size:0.85rem; color:var(--green);" id="batchTotalLabel">Total: $ 0,00</strong>
+      </div>
+      <div class="table-wrap" style="max-height:200px; border:1px solid var(--border); border-radius:8px;">
+        <table>
+          <thead><tr><th>Vencimiento</th><th>Detalle</th><th>Banco</th><th>Monto</th><th></th></tr></thead>
+          <tbody id="batchPreviewBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeModal('modalBatch')">Cancelar</button>
+      <button class="btn-primary" id="btnSaveBatch" style="display:none;" onclick="confirmarLoteMasivo()">💾 Guardar Lote en Google Sheets</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TODAY_STR = new Date().toISOString().split('T')[0];
+
+  let operaciones = [
+    { ID_Op: "OP-001", Fecha_Vencimiento: "2026-11-14", Tipo: "EGRESO", ID_Cliente: "CLI-008", Cliente_Entidad: "UP Soluciones", Detalle: "PAGO UP", Categoria: "ADMIN.", Subcategoria: "ADMIN.", Moneda: "ARS", Monto: 83000, Monto_Cobrado: 0, Saldo_Pendiente: 83000, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764445566", Banco: "-" },
+    { ID_Op: "OP-002", Fecha_Vencimiento: "2026-11-14", Tipo: "EGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "PAGO MC", Categoria: "ADMIN.", Subcategoria: "ADMIN.", Moneda: "ARS", Monto: 500000, Monto_Cobrado: 500000, Saldo_Pendiente: 0, Fecha_Real_Pago: "2026-11-16", Dias_Demora_Real: 2, Operador: "CRE", Estado: "COBRADO", Status_CRM: "RESUELTO", Telefono_WA: "5493764889900", Banco: "-" },
+    { ID_Op: "OP-003", Fecha_Vencimiento: "2026-11-15", Tipo: "INGRESO", ID_Cliente: "CLI-001", Cliente_Entidad: "Marcela A.", Detalle: "MARCELA A.", Categoria: "LOTEO", Subcategoria: "ADMIN.", Moneda: "USD", Monto: 820, Monto_Cobrado: 0, Saldo_Pendiente: 820, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764123456", Banco: "-" },
+    { ID_Op: "OP-004", Fecha_Vencimiento: "2026-11-15", Tipo: "INGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "COBRO FL", Categoria: "OP.FINANCIERA", Subcategoria: "CH/VENTA", Moneda: "ARS", Monto: 14022085, Monto_Cobrado: 6000000, Saldo_Pendiente: 8022085, Fecha_Real_Pago: "2026-11-16", Dias_Demora_Real: 1, Operador: "MC", Estado: "PARCIAL", Status_CRM: "EN PROCESO", Telefono_WA: "5493764889900", Banco: "Banco Macro" },
+    { ID_Op: "OP-005", Fecha_Vencimiento: "2026-11-20", Tipo: "INGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "COBRO FL", Categoria: "OP.FINANCIERA", Subcategoria: "CH/VENTA", Moneda: "ARS", Monto: 15850000, Monto_Cobrado: 15850000, Saldo_Pendiente: 0, Fecha_Real_Pago: "2026-11-20", Dias_Demora_Real: 0, Operador: "MC", Estado: "COBRADO", Status_CRM: "RESUELTO", Telefono_WA: "5493764889900", Banco: "Banco Galicia" },
+    { ID_Op: "OP-006", Fecha_Vencimiento: "2026-11-20", Tipo: "INGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "COBRO FL (CH12)", Categoria: "OP.FINANCIERA", Subcategoria: "CH/VENTA", Moneda: "ARS", Monto: 11918074, Monto_Cobrado: 11918074, Saldo_Pendiente: 0, Fecha_Real_Pago: "2026-11-18", Dias_Demora_Real: -2, Operador: "MC", Estado: "COBRADO", Status_CRM: "RESUELTO", Telefono_WA: "5493764889900", Banco: "Banco Galicia" },
+    { ID_Op: "OP-007", Fecha_Vencimiento: "2026-11-20", Tipo: "EGRESO", ID_Cliente: "CLI-006", Cliente_Entidad: "Pirapytá S.R.L.", Detalle: "PIRAPYTA AF", Categoria: "SERVICIOS", Subcategoria: "PIRAPYTA", Moneda: "ARS", Monto: 168000, Monto_Cobrado: 0, Saldo_Pendiente: 168000, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764778899", Banco: "-" },
+    { ID_Op: "OP-008", Fecha_Vencimiento: "2026-11-20", Tipo: "EGRESO", ID_Cliente: "CLI-006", Cliente_Entidad: "Pirapytá S.R.L.", Detalle: "PIRAPYTA MC", Categoria: "SERVICIOS", Subcategoria: "PIRAPYTA", Moneda: "ARS", Monto: 219000, Monto_Cobrado: 0, Saldo_Pendiente: 219000, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764778899", Banco: "-" },
+    { ID_Op: "OP-009", Fecha_Vencimiento: "2026-11-20", Tipo: "INGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "COBRO FL", Categoria: "OP.FINANCIERA", Subcategoria: "CH/VENTA", Moneda: "ARS", Monto: 15668074, Monto_Cobrado: 0, Saldo_Pendiente: 15668074, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "MC", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764889900", Banco: "Banco Santander" },
+    { ID_Op: "OP-010", Fecha_Vencimiento: "2026-11-30", Tipo: "INGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "COBRO FL (CH14)", Categoria: "OP.FINANCIERA", Subcategoria: "CH/VENTA", Moneda: "ARS", Monto: 13955200, Monto_Cobrado: 0, Saldo_Pendiente: 13955200, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "MC", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764889900", Banco: "Banco Macro" },
+    { ID_Op: "OP-011", Fecha_Vencimiento: "2026-11-30", Tipo: "EGRESO", ID_Cliente: "CLI-007", Cliente_Entidad: "Centro Emp. Comercio / FAECYS", Detalle: "CENTRO EMP. COM. PERIODO 10/2026", Categoria: "SERVICIOS", Subcategoria: "FAECYS/CEP", Moneda: "ARS", Monto: 351337.72, Monto_Cobrado: 0, Saldo_Pendiente: 351337.72, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764112233", Banco: "-" },
+    { ID_Op: "OP-012", Fecha_Vencimiento: "2026-11-30", Tipo: "EGRESO", ID_Cliente: "CLI-007", Cliente_Entidad: "Centro Emp. Comercio / FAECYS", Detalle: "PAGO FAECYS CRE 09/2026", Categoria: "SERVICIOS", Subcategoria: "FAECYS/CEP", Moneda: "ARS", Monto: 89283.70, Monto_Cobrado: 0, Saldo_Pendiente: 89283.70, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764112233", Banco: "-" },
+    { ID_Op: "OP-013", Fecha_Vencimiento: "2026-12-04", Tipo: "INGRESO", ID_Cliente: "CLI-003", Cliente_Entidad: "Saul M.", Detalle: "SAUL M.", Categoria: "LOTEO", Subcategoria: "ADMIN.", Moneda: "ARS", Monto: 796447.90, Monto_Cobrado: 0, Saldo_Pendiente: 796447.90, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764556677", Banco: "-" },
+    { ID_Op: "OP-014", Fecha_Vencimiento: "2026-12-10", Tipo: "INGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "COBRO FL", Categoria: "OP.FINANCIERA", Subcategoria: "CH/VENTA", Moneda: "ARS", Monto: 12100000, Monto_Cobrado: 0, Saldo_Pendiente: 12100000, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "MC", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764889900", Banco: "BBVA" },
+    { ID_Op: "OP-015", Fecha_Vencimiento: "2026-12-15", Tipo: "INGRESO", ID_Cliente: "CLI-001", Cliente_Entidad: "Marcela A.", Detalle: "MARCELA A.", Categoria: "LOTEO", Subcategoria: "ADMIN.", Moneda: "USD", Monto: 820, Monto_Cobrado: 0, Saldo_Pendiente: 820, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764123456", Banco: "-" },
+    { ID_Op: "OP-016", Fecha_Vencimiento: "2027-01-04", Tipo: "INGRESO", ID_Cliente: "CLI-003", Cliente_Entidad: "Saul M.", Detalle: "SAUL M.", Categoria: "LOTEO", Subcategoria: "ADMIN.", Moneda: "ARS", Monto: 796447.90, Monto_Cobrado: 0, Saldo_Pendiente: 796447.90, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764556677", Banco: "-" },
+    { ID_Op: "OP-017", Fecha_Vencimiento: "2027-01-10", Tipo: "INGRESO", ID_Cliente: "CLI-002", Cliente_Entidad: "FL Operaciones S.A.", Detalle: "COBRO FL", Categoria: "OP.FINANCIERA", Subcategoria: "CH/VENTA", Moneda: "ARS", Monto: 12100000, Monto_Cobrado: 0, Saldo_Pendiente: 12100000, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "MC", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764889900", Banco: "Banco Nación" },
+    { ID_Op: "OP-018", Fecha_Vencimiento: "2027-01-15", Tipo: "INGRESO", ID_Cliente: "CLI-001", Cliente_Entidad: "Marcela A.", Detalle: "MARCELA A.", Categoria: "LOTEO", Subcategoria: "ADMIN.", Moneda: "USD", Monto: 820, Monto_Cobrado: 0, Saldo_Pendiente: 820, Fecha_Real_Pago: "", Dias_Demora_Real: "", Operador: "CRE", Estado: "PENDIENTE", Status_CRM: "EN PROCESO", Telefono_WA: "5493764123456", Banco: "-" }
+  ];
+
+  let clientes = [
+    { ID_Cliente: "CLI-001", Nombre_Razon_Social: "Marcela A.", CUIT_DNI: "27-32145678-4", Telefono_WhatsApp: "5493764123456", Situacion_BCRA: "1 - Normal", Scoring_Crediticio: 88, Dictamen_Scoring: "APROBADO", "%_Legajo": "100%", Estado_Legajo: "COMPLETO", Pipeline_Comercial: "ACTIVO", Operador_Asignado: "CRE" },
+    { ID_Cliente: "CLI-002", Nombre_Razon_Social: "FL Operaciones S.A.", CUIT_DNI: "30-71458923-8", Telefono_WhatsApp: "5493764889900", Situacion_BCRA: "1 - Normal", Scoring_Crediticio: 92, Dictamen_Scoring: "APROBADO", "%_Legajo": "100%", Estado_Legajo: "COMPLETO", Pipeline_Comercial: "ACTIVO", Operador_Asignado: "MC" },
+    { ID_Cliente: "CLI-003", Nombre_Razon_Social: "Saul M.", CUIT_DNI: "20-28954123-2", Telefono_WhatsApp: "5493764556677", Situacion_BCRA: "2 - Con seguimiento especial", Scoring_Crediticio: 68, Dictamen_Scoring: "EN REVISIÓN", "%_Legajo": "80%", Estado_Legajo: "EN REVISIÓN", Pipeline_Comercial: "ACTIVO", Operador_Asignado: "CRE" },
+    { ID_Cliente: "CLI-004", Nombre_Razon_Social: "Inmobiliaria Misiones", CUIT_DNI: "30-70984512-5", Telefono_WhatsApp: "5493764223344", Situacion_BCRA: "1 - Normal", Scoring_Crediticio: 84, Dictamen_Scoring: "APROBADO", "%_Legajo": "80%", Estado_Legajo: "EN REVISIÓN", Pipeline_Comercial: "ACTIVO", Operador_Asignado: "CRE" },
+    { ID_Cliente: "CLI-005", Nombre_Razon_Social: "Juan Pérez", CUIT_DNI: "20-35412789-9", Telefono_WhatsApp: "5493764998877", Situacion_BCRA: "1 - Normal", Scoring_Crediticio: 72, Dictamen_Scoring: "EN REVISIÓN", "%_Legajo": "60%", Estado_Legajo: "EN REVISIÓN", Pipeline_Comercial: "PROSPECTO", Operador_Asignado: "MC" }
+  ];
+
+  let batchItems = [];
+  let cfGranularity = "semanal";
+  let cfCurrency = "ARS";
+  let cfInitialBalance = 0;
+
+  function fmtMoney(val, moneda) {
+    const n = Number(val || 0);
+    return (moneda === "USD" ? "US$ " : "$ ") + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function diffDays(dateA, dateB) {
+    const a = new Date(dateA + "T00:00:00");
+    const b = new Date(dateB + "T00:00:00");
+    return Math.round((a - b) / 86400000);
+  }
+
+  function getFilteredOps() {
+    const q = document.getElementById("fSearch").value.toLowerCase().trim();
+    const op = document.getElementById("fOperador").value;
+    const mon = document.getElementById("fMoneda").value;
+    const tipo = document.getElementById("fTipo").value;
+    const cat = document.getElementById("fCategoria").value;
+    const bco = document.getElementById("fBanco").value;
+
+    return operaciones.filter(r => {
+      if (op !== "TODOS" && r.Operador !== op) return false;
+      if (mon !== "TODAS" && r.Moneda !== mon) return false;
+      if (tipo !== "TODOS" && r.Tipo !== tipo) return false;
+      if (cat !== "TODAS" && r.Categoria !== cat) return false;
+      if (bco !== "TODOS" && (r.Banco || "-") !== bco) return false;
+      if (q && !(`${r.ID_Op} ${r.Cliente_Entidad} ${r.Detalle} ${r.Subcategoria} ${r.Banco || ""}`.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }
+
+  function renderKPIs(rows) {
+    let pendARS = 0, pendUSD = 0, moraARS = 0, moraUSD = 0, moraCount = 0;
+    let dsoList = [];
+
+    rows.forEach(r => {
+      const saldo = Number(r.Saldo_Pendiente ?? (r.Monto - (r.Monto_Cobrado || 0)));
+      if (r.Tipo === "INGRESO" && r.Estado !== "COBRADO" && r.Estado !== "ANULADO") {
+        if (r.Moneda === "ARS") pendARS += saldo;
+        if (r.Moneda === "USD") pendUSD += saldo;
+        if (r.Fecha_Vencimiento < TODAY_STR) {
+          moraCount++;
+          if (r.Moneda === "ARS") moraARS += saldo;
+          if (r.Moneda === "USD") moraUSD += saldo;
+        }
+      }
+      if (r.Tipo === "INGRESO" && r.Fecha_Real_Pago) {
+        dsoList.push(diffDays(r.Fecha_Real_Pago, r.Fecha_Vencimiento));
+      }
+    });
+
+    const dsoAvg = dsoList.length ? (dsoList.reduce((a, b) => a + b, 0) / dsoList.length).toFixed(1) : "0.0";
+
+    document.getElementById("kpiGrid").innerHTML = `
+      <div class="kpi-card">
+        <div class="kpi-title">Saldo Vivo a Cobrar (ARS)</div>
+        <div class="kpi-value" style="color:var(--green);">${fmtMoney(pendARS, "ARS")}</div>
+        <div class="kpi-sub">Cartera activa neta de entregas</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">Saldo Vivo a Cobrar (USD)</div>
+        <div class="kpi-value" style="color:var(--primary);">${fmtMoney(pendUSD, "USD")}</div>
+        <div class="kpi-sub">Operaciones en dólares</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">🚨 Cobros Atrasados (${moraCount})</div>
+        <div class="kpi-value" style="color:var(--red);">${fmtMoney(moraARS, "ARS")}</div>
+        <div class="kpi-sub">+ ${fmtMoney(moraUSD, "USD")} vencidos</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">DSO / Desvío Promedio Real</div>
+        <div class="kpi-value" style="color:${Number(dsoAvg) > 0 ? 'var(--amber)' : 'var(--green)'};">${Number(dsoAvg) > 0 ? '+' + dsoAvg : dsoAvg} días</div>
+        <div class="kpi-sub">Fecha real vs. vencimiento</div>
+      </div>
+    `;
+  }
+
+  function buildWaLink(r) {
+    if (!r.Telefono_WA || r.Estado === "COBRADO" || r.Estado === "ANULADO") return "";
+    const saldo = Number(r.Saldo_Pendiente ?? r.Monto);
+    const bcoTxt = (r.Banco && r.Banco !== "-") ? ` (${r.Banco})` : "";
+    const msg = `Hola ${r.Cliente_Entidad}, te recordamos el vencimiento de tu operación ${r.Detalle}${bcoTxt} por saldo pendiente de ${fmtMoney(saldo, r.Moneda)} con fecha ${r.Fecha_Vencimiento}.`;
+    return `https://wa.me/${r.Telefono_WA}?text=${encodeURIComponent(msg)}`;
+  }
+
+  function renderBucketTable(title, items) {
+    let totARS = 0, totUSD = 0;
+    items.forEach(r => {
+      const val = (r.Estado === "COBRADO") ? Number(r.Monto_Cobrado || r.Monto) : Number(r.Saldo_Pendiente ?? r.Monto);
+      if (r.Moneda === "ARS") totARS += val;
+      if (r.Moneda === "USD") totUSD += val;
+    });
+
+    const rowsHtml = items.length ? items.map(r => {
+      const saldo = Number(r.Saldo_Pendiente ?? (r.Monto - (r.Monto_Cobrado || 0)));
+      const waUrl = buildWaLink(r);
+      const dsoTxt = r.Fecha_Real_Pago ? `${diffDays(r.Fecha_Real_Pago, r.Fecha_Vencimiento) >= 0 ? '+' : ''}${diffDays(r.Fecha_Real_Pago, r.Fecha_Vencimiento)}d` : '-';
+      const bancoBadge = (r.Banco && r.Banco !== "-") ? `<span class="pill pill-bank">🏦 ${r.Banco}</span>` : `<span style="color:var(--muted);font-size:0.75rem;">-</span>`;
+
+      return `
+        <tr>
+          <td><strong>${r.ID_Op}</strong><br><span style="font-size:0.72rem;color:var(--muted);">${r.Fecha_Vencimiento}</span></td>
+          <td><span class="pill ${r.Tipo === 'INGRESO' ? 'pill-in' : 'pill-out'}">${r.Tipo}</span> <span class="pill pill-op">${r.Operador}</span></td>
+          <td><strong>${r.Cliente_Entidad}</strong><br><span style="font-size:0.75rem;color:var(--muted);">${r.Detalle}</span></td>
+          <td>${bancoBadge}</td>
+          <td>${r.Categoria}<br><span style="font-size:0.72rem;color:var(--muted);">${r.Subcategoria}</span></td>
+          <td>${fmtMoney(r.Monto, r.Moneda)}</td>
+          <td style="color:var(--green);">${fmtMoney(r.Monto_Cobrado || 0, r.Moneda)}</td>
+          <td><strong style="color:${saldo > 0 ? 'var(--amber)' : 'var(--muted)'};">${fmtMoney(saldo, r.Moneda)}</strong></td>
+          <td><span class="pill pill-st-${r.Estado}">${r.Estado}</span><br><span style="font-size:0.7rem;color:var(--muted);">DSO: ${dsoTxt}</span></td>
+          <td>
+            ${r.Estado !== 'COBRADO' && r.Estado !== 'ANULADO' ? `<button class="btn-pay" onclick="openCobroModal('${r.ID_Op}')">💵 Cobrar</button>` : ''}
+            ${waUrl ? `<a class="btn-wa" href="${waUrl}" target="_blank">📲 WA</a>` : ''}
+          </td>
+        </tr>
+      `;
+    }).join("") : `<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:16px;">Sin movimientos en esta sección</td></tr>`;
+
+    return `
+      <div class="bucket-section">
+        <div class="bucket-header">
+          <div class="bucket-title">${title} <span class="pill pill-op">${items.length}</span></div>
+          <div class="bucket-totals">
+            <span>Total ARS: <strong>${fmtMoney(totARS, "ARS")}</strong></span>
+            <span>Total USD: <strong>${fmtMoney(totUSD, "USD")}</strong></span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID / Venc.</th>
+                <th>Flujo / Op</th>
+                <th>Cliente / Detalle</th>
+                <th>Banco</th>
+                <th>Categoría</th>
+                <th>Pactado</th>
+                <th>Cobrado/Pagado</th>
+                <th>Saldo Vivo</th>
+                <th>Estado / DSO</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderBandeja(rows) {
+    const terminadasHoy = rows.filter(r => r.Estado === "COBRADO" && r.Fecha_Real_Pago === TODAY_STR);
+    const cobrosAtrasados = rows.filter(r => r.Tipo === "INGRESO" && r.Estado !== "COBRADO" && r.Estado !== "ANULADO" && r.Fecha_Vencimiento < TODAY_STR);
+    const servicios = rows.filter(r => r.Categoria === "SERVICIOS" && r.Estado !== "COBRADO" && r.Estado !== "ANULADO");
+    const ingresosProximos = rows.filter(r => r.Tipo === "INGRESO" && r.Estado !== "COBRADO" && r.Estado !== "ANULADO" && r.Fecha_Vencimiento >= TODAY_STR && r.Categoria !== "SERVICIOS");
+    const egresosProximos = rows.filter(r => r.Tipo === "EGRESO" && r.Estado !== "COBRADO" && r.Estado !== "ANULADO" && r.Categoria !== "SERVICIOS");
+
+    document.getElementById("tab-bandeja").innerHTML =
+      renderBucketTable("📅 TERMINADAS HOY", terminadasHoy) +
+      renderBucketTable("🚨 COBROS ATRASADOS", cobrosAtrasados) +
+      renderBucketTable("📅 SERVICIOS", servicios) +
+      renderBucketTable("💰 INGRESOS PRÓXIMOS", ingresosProximos) +
+      renderBucketTable("💸 EGRESOS PRÓXIMOS", egresosProximos);
+  }
+
+  // --- MÓDULO FLUJO PROYECTADO SEMANAL / MENSUAL ---
+  function getWeekStart(dateStr) {
+    const d = new Date(dateStr + "T00:00:00");
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(d.setDate(diff));
+    return monday.toISOString().split("T")[0];
+  }
+
+  function renderFlujoProyectado(rows) {
+    const activeRows = rows.filter(r => r.Estado !== "COBRADO" && r.Estado !== "ANULADO" && r.Moneda === cfCurrency);
+    const bucketsMap = {};
+
+    // Generar horizonte base (8 semanas o 6 meses desde hoy)
+    const baseDate = new Date(TODAY_STR + "T00:00:00");
+    if (cfGranularity === "semanal") {
+      for (let i = 0; i < 8; i++) {
+        const d = new Date(baseDate);
+        d.setDate(d.getDate() + i * 7);
+        const key = getWeekStart(d.toISOString().split("T")[0]);
+        bucketsMap[key] = { key, label: "Sem " + key.slice(5), ingresos: 0, egresos: 0, count: 0 };
+      }
+    } else {
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 1);
+        const key = d.toISOString().slice(0, 7);
+        bucketsMap[key] = { key, label: key, ingresos: 0, egresos: 0, count: 0 };
+      }
+    }
+
+    // Incluir vencidos anteriores en el primer bucket ("Atrasado / Actual")
+    const sortedKeys = Object.keys(bucketsMap).sort();
+    const firstKey = sortedKeys[0];
+
+    activeRows.forEach(r => {
+      const saldo = Number(r.Saldo_Pendiente ?? (r.Monto - (r.Monto_Cobrado || 0)));
+      if (saldo <= 0) return;
+      let k = (cfGranularity === "semanal") ? getWeekStart(r.Fecha_Vencimiento) : r.Fecha_Vencimiento.slice(0, 7);
+      if (k < firstKey) k = firstKey;
+      if (!bucketsMap[k]) {
+        bucketsMap[k] = { key: k, label: (cfGranularity === "semanal" ? "Sem " + k.slice(5) : k), ingresos: 0, egresos: 0, count: 0 };
+      }
+      if (r.Tipo === "INGRESO") bucketsMap[k].ingresos += saldo;
+      else bucketsMap[k].egresos += saldo;
+      bucketsMap[k].count++;
+    });
+
+    const timeline = Object.keys(bucketsMap).sort().map(k => bucketsMap[k]);
+    let runningBalance = Number(cfInitialBalance || 0);
+    let maxVal = 1;
+    timeline.forEach(b => {
+      b.neto = b.ingresos - b.egresos;
+      runningBalance += b.neto;
+      b.acumulado = runningBalance;
+      maxVal = Math.max(maxVal, b.ingresos, b.egresos);
+    });
+
+    const barsHtml = timeline.map(b => {
+      const hIn = Math.round((b.ingresos / maxVal) * 130);
+      const hOut = Math.round((b.egresos / maxVal) * 130);
+      return `
+        <div class="bar-col" title="${b.label}: Ingresos ${fmtMoney(b.ingresos, cfCurrency)} | Egresos ${fmtMoney(b.egresos, cfCurrency)}">
+          <div class="bar-pair">
+            <div class="bar-in" style="height:${hIn}px;"></div>
+            <div class="bar-out" style="height:${hOut}px;"></div>
+          </div>
+          <div class="bar-lbl">${b.label}</div>
+        </div>
+      `;
+    }).join("");
+
+    const tableRows = timeline.map(b => `
+      <tr>
+        <td><strong>${b.label}</strong></td>
+        <td>${b.count}</td>
+        <td style="color:var(--green); font-weight:600;">${fmtMoney(b.ingresos, cfCurrency)}</td>
+        <td style="color:var(--red); font-weight:600;">${fmtMoney(b.egresos, cfCurrency)}</td>
+        <td style="color:${b.neto >= 0 ? 'var(--green)' : 'var(--red)'}; font-weight:700;">${fmtMoney(b.neto, cfCurrency)}</td>
+        <td><strong style="color:${b.acumulado >= 0 ? 'var(--primary)' : 'var(--red)'};">${fmtMoney(b.acumulado, cfCurrency)}</strong></td>
+        <td>${b.acumulado < 0 ? '<span class="pill pill-st-VENCIDO">⚠️ Déficit Caja</span>' : (b.neto < 0 ? '<span class="pill pill-st-PARCIAL">Flujo Negativo</span>' : '<span class="pill pill-st-COBRADO">Superávit</span>')}</td>
+      </tr>
+    `).join("");
+
+    document.getElementById("tab-flujo").innerHTML = `
+      <div class="cf-controls">
+        <div class="fg">
+          <label>Periodicidad</label>
+          <select onchange="cfGranularity=this.value; renderAll();">
+            <option value="semanal" ${cfGranularity === 'semanal' ? 'selected' : ''}>Semanal (Próximas 8 semanas)</option>
+            <option value="mensual" ${cfGranularity === 'mensual' ? 'selected' : ''}>Mensual (Próximos 6 meses)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Moneda Proyección</label>
+          <select onchange="cfCurrency=this.value; renderAll();">
+            <option value="ARS" ${cfCurrency === 'ARS' ? 'selected' : ''}>Pesos Argentinos (ARS)</option>
+            <option value="USD" ${cfCurrency === 'USD' ? 'selected' : ''}>Dólares (USD)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Saldo Inicial Caja / Banco (${cfCurrency})</label>
+          <input type="number" step="0.01" value="${cfInitialBalance}" onchange="cfInitialBalance=Number(this.value||0); renderAll();" placeholder="0.00" />
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="font-size:0.9rem;">📊 Calce de Ingresos vs. Egresos Proyectados (${cfCurrency})</strong>
+          <span style="font-size:0.75rem; color:var(--muted);">🟩 Ingresos &nbsp; 🟥 Egresos</span>
+        </div>
+        <div class="bars-container">${barsHtml}</div>
+      </div>
+
+      <div class="bucket-section">
+        <div class="bucket-header">
+          <div class="bucket-title">📅 Detalle de Liquidez Proyectada (${cfCurrency})</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Período</th>
+                <th>Ops Vivas</th>
+                <th>Ingresos Esperados</th>
+                <th>Egresos Comprometidos</th>
+                <th>Flujo Neto</th>
+                <th>Saldo Acumulado</th>
+                <th>Diagnóstico</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCategoriasMatrix(rows) {
+    const cats = [...new Set(rows.map(r => r.Categoria))];
+    const html = cats.map(c => {
+      const sub = rows.filter(r => r.Categoria === c);
+      const inARS = sub.filter(r => r.Tipo === "INGRESO" && r.Moneda === "ARS").reduce((s, r) => s + Number(r.Monto), 0);
+      const inUSD = sub.filter(r => r.Tipo === "INGRESO" && r.Moneda === "USD").reduce((s, r) => s + Number(r.Monto), 0);
+      const outARS = sub.filter(r => r.Tipo === "EGRESO" && r.Moneda === "ARS").reduce((s, r) => s + Number(r.Monto), 0);
+      const saldoInARS = sub.filter(r => r.Tipo === "INGRESO" && r.Moneda === "ARS" && r.Estado !== "COBRADO").reduce((s, r) => s + Number(r.Saldo_Pendiente ?? r.Monto), 0);
+      const saldoOutARS = sub.filter(r => r.Tipo === "EGRESO" && r.Moneda === "ARS" && r.Estado !== "COBRADO").reduce((s, r) => s + Number(r.Saldo_Pendiente ?? r.Monto), 0);
+
+      return `
+        <div class="cat-card">
+          <h3>📁 ${c} (${sub.length} ops)</h3>
+          <div class="cat-row"><span style="color:var(--green);">Ingresos Pactados (ARS):</span><strong>${fmtMoney(inARS, "ARS")}</strong></div>
+          <div class="cat-row"><span style="color:var(--primary);">Ingresos Pactados (USD):</span><strong>${fmtMoney(inUSD, "USD")}</strong></div>
+          <div class="cat-row"><span style="color:var(--red);">Egresos Pactados (ARS):</span><strong>${fmtMoney(outARS, "ARS")}</strong></div>
+          <hr style="border-color:var(--border);margin:8px 0;">
+          <div class="cat-row"><span>Saldo a Cobrar (ARS):</span><strong style="color:var(--amber);">${fmtMoney(saldoInARS, "ARS")}</strong></div>
+          <div class="cat-row"><span>Saldo a Pagar (ARS):</span><strong style="color:var(--red);">${fmtMoney(saldoOutARS, "ARS")}</strong></div>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("tab-categorias").innerHTML = `<div class="matrix-grid">${html}</div>`;
+  }
+
+  function renderClientes() {
+    const rowsHtml = clientes.map(c => `
+      <tr>
+        <td><strong>${c.ID_Cliente}</strong></td>
+        <td><strong>${c.Nombre_Razon_Social}</strong><br><span style="font-size:0.72rem;color:var(--muted);">${c.CUIT_DNI}</span></td>
+        <td><span class="pill pill-op">${c.Operador_Asignado}</span></td>
+        <td>${c.Situacion_BCRA}</td>
+        <td><strong>${c.Scoring_Crediticio}</strong> / 100</td>
+        <td><span class="pill ${c.Dictamen_Scoring === 'APROBADO' ? 'pill-in' : 'pill-st-PARCIAL'}">${c.Dictamen_Scoring}</span></td>
+        <td>${c["%_Legajo"]} (${c.Estado_Legajo})</td>
+        <td><a class="btn-wa" href="https://wa.me/${c.Telefono_WhatsApp}" target="_blank">📲 Contactar</a></td>
+      </tr>
+    `).join("");
+
+    document.getElementById("tab-clientes").innerHTML = `
+      <div class="bucket-section">
+        <div class="bucket-header"><div class="bucket-title">🗂️ Base Maestra de Clientes, Scoring & Legajos</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>Cliente / CUIT</th><th>Op.</th><th>BCRA</th><th>Score</th><th>Dictamen</th><th>Legajo</th><th>WA</th></tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAll() {
+    const filtered = getFilteredOps();
+    renderKPIs(filtered);
+    renderBandeja(filtered);
+    renderFlujoProyectado(filtered);
+    renderCategoriasMatrix(filtered);
+    renderClientes();
+  }
+
+  function switchTab(tab, btn) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    ["bandeja", "flujo", "categorias", "clientes"].forEach(t => {
+      document.getElementById("tab-" + t).style.display = (t === tab) ? "block" : "none";
+    });
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add("open"); }
+  function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+
+  function openNewOpModal() {
+    document.getElementById("newFecha").value = TODAY_STR;
+    openModal("modalNewOp");
+  }
+
+  // --- IMPORTADOR MASIVO DE CHEQUES / CUOTAS ---
+  function openBatchModal() {
+    batchItems = [];
+    document.getElementById("batchRawText").value = "";
+    document.getElementById("serFecha1").value = TODAY_STR;
+    document.getElementById("batchPreviewWrap").style.display = "none";
+    document.getElementById("btnSaveBatch").style.display = "none";
+    openModal("modalBatch");
+  }
+
+  function switchBatchMode(mode) {
+    document.getElementById("btnSubPaste").classList.toggle("active", mode === "paste");
+    document.getElementById("btnSubSeries").classList.toggle("active", mode === "series");
+    document.getElementById("batchModePaste").style.display = (mode === "paste") ? "block" : "none";
+    document.getElementById("batchModeSeries").style.display = (mode === "series") ? "block" : "none";
+  }
+
+  function normalizeDateInput(str) {
+    const s = str.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m) return `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+    return TODAY_STR;
+  }
+
+  function parseBatchPaste() {
+    const raw = document.getElementById("batchRawText").value.trim();
+    const defaultBanco = document.getElementById("batchBancoDefault").value;
+    if (!raw) return;
+
+    const lines = raw.split(/\r?\n/).filter(l => l.trim());
+    batchItems = lines.map((line, idx) => {
+      const parts = line.includes("\t") ? line.split("\t") : line.split(";");
+      const fecha = normalizeDateInput(parts[0] || TODAY_STR);
+      const detalle = (parts[1] || `VALOR #${idx + 1}`).trim();
+      let banco = defaultBanco;
+      let montoRaw = "0";
+
+      if (parts.length >= 4) {
+        banco = (parts[2] || defaultBanco).trim();
+        montoRaw = parts[3];
+      } else if (parts.length === 3) {
+        montoRaw = parts[2];
+      }
+
+      const monto = Number(String(montoRaw).replace(/\./g, "").replace(",", ".").replace(/[^0-9.\-]/g, "")) || 0;
+      return { Fecha_Vencimiento: fecha, Detalle: detalle, Banco: banco, Monto: monto };
+    });
+
+    renderBatchPreview();
+  }
+
+  function generateBatchSeries() {
+    const startStr = document.getElementById("serFecha1").value || TODAY_STR;
+    const cant = Math.min(60, Math.max(1, Number(document.getElementById("serCant").value || 1)));
+    const stepDays = Number(document.getElementById("serDias").value || 30);
+    const monto = Number(document.getElementById("serMonto").value || 0);
+    const prefijo = document.getElementById("serPrefijo").value.trim() || "CUOTA #";
+    const banco = document.getElementById("batchBancoDefault").value;
+
+    batchItems = [];
+    const base = new Date(startStr + "T00:00:00");
+    for (let i = 0; i < cant; i++) {
+      const d = new Date(base);
+      d.setDate(d.getDate() + i * stepDays);
+      batchItems.push({
+        Fecha_Vencimiento: d.toISOString().split("T")[0],
+        Detalle: `${prefijo}${i + 1}/${cant}`,
+        Banco: banco,
+        Monto: monto
+      });
+    }
+    renderBatchPreview();
+  }
+
+  function removeBatchRow(idx) {
+    batchItems.splice(idx, 1);
+    renderBatchPreview();
+  }
+
+  function renderBatchPreview() {
+    const mon = document.getElementById("batchMoneda").value;
+    const total = batchItems.reduce((s, x) => s + Number(x.Monto || 0), 0);
+
+    document.getElementById("batchCount").textContent = batchItems.length;
+    document.getElementById("batchTotalLabel").textContent = "Total Lote: " + fmtMoney(total, mon);
+
+    document.getElementById("batchPreviewBody").innerHTML = batchItems.map((it, idx) => `
+      <tr>
+        <td>${it.Fecha_Vencimiento}</td>
+        <td>${it.Detalle}</td>
+        <td><span class="pill pill-bank">${it.Banco}</span></td>
+        <td><strong>${fmtMoney(it.Monto, mon)}</strong></td>
+        <td><button class="btn-outline" style="padding:2px 6px;" onclick="removeBatchRow(${idx})">✕</button></td>
+      </tr>
+    `).join("");
+
+    document.getElementById("batchPreviewWrap").style.display = batchItems.length ? "block" : "none";
+    document.getElementById("btnSaveBatch").style.display = batchItems.length ? "inline-flex" : "none";
+  }
+
+  async function confirmarLoteMasivo() {
+    if (!batchItems.length) return;
+    const cliente = document.getElementById("batchCliente").value.trim() || "Cliente Lote";
+    const operador = document.getElementById("batchOperador").value;
+    const categoria = document.getElementById("batchCategoria").value;
+    const moneda = document.getElementById("batchMoneda").value;
+    const tel = document.getElementById("batchTelefono").value.replace(/\D/g, "");
+
+    let baseNum = operaciones.length;
+    const nuevas = batchItems.map((it, idx) => {
+      const idOp = "OP-" + String(baseNum + idx + 1).padStart(3, "0");
+      return {
+        ID_Op: idOp,
+        Fecha_Vencimiento: it.Fecha_Vencimiento,
+        Tipo: "INGRESO",
+        ID_Cliente: "CLI-LOTE",
+        Cliente_Entidad: cliente,
+        Detalle: it.Detalle,
+        Categoria: categoria,
+        Subcategoria: categoria === "OP.FINANCIERA" ? "CH/VENTA" : "LOTEO",
+        Moneda: moneda,
+        Monto: Number(it.Monto),
+        Monto_Cobrado: 0,
+        Saldo_Pendiente: Number(it.Monto),
+        Fecha_Real_Pago: "",
+        Dias_Demora_Real: "",
+        Operador: operador,
+        Estado: "PENDIENTE",
+        Status_CRM: "EN PROCESO",
+        Telefono_WA: tel,
+        Banco: it.Banco || "-"
+      };
+    });
+
+    operaciones = [...nuevas.reverse(), ...operaciones];
+    closeModal("modalBatch");
+    renderAll();
+    await pushToSheets({ action: "crearLoteOperaciones", items: nuevas.reverse() });
+  }
+
+  // --- COBRO PARCIAL ---
+  function openCobroModal(idOp) {
+    const r = operaciones.find(x => x.ID_Op === idOp);
+    if (!r) return;
+    const saldo = Number(r.Saldo_Pendiente ?? (r.Monto - (r.Monto_Cobrado || 0)));
+    document.getElementById("cobroIdOp").value = r.ID_Op;
+    document.getElementById("cobroInfo").value = `${r.ID_Op} - ${r.Cliente_Entidad} (${r.Detalle})`;
+    document.getElementById("cobroPactado").value = fmtMoney(r.Monto, r.Moneda);
+    document.getElementById("cobroPrevio").value = fmtMoney(r.Monto_Cobrado || 0, r.Moneda);
+    document.getElementById("cobroEntrega").value = saldo;
+    document.getElementById("cobroFechaReal").value = TODAY_STR;
+    calcSaldoPreview();
+    openModal("modalCobro");
+  }
+
+  function calcSaldoPreview() {
+    const idOp = document.getElementById("cobroIdOp").value;
+    const r = operaciones.find(x => x.ID_Op === idOp);
+    if (!r) return;
+    const entrega = Number(document.getElementById("cobroEntrega").value || 0);
+    const nuevoCobrado = Number(r.Monto_Cobrado || 0) + entrega;
+    const nuevoSaldo = Math.max(0, Number(r.Monto) - nuevoCobrado);
+    document.getElementById("cobroSaldoPreview").value = fmtMoney(nuevoSaldo, r.Moneda);
+  }
+
+  async function confirmarCobro() {
+    const idOp = document.getElementById("cobroIdOp").value;
+    const r = operaciones.find(x => x.ID_Op === idOp);
+    if (!r) return;
+    const entrega = Number(document.getElementById("cobroEntrega").value || 0);
+    const fechaReal = document.getElementById("cobroFechaReal").value || TODAY_STR;
+
+    r.Monto_Cobrado = Number(r.Monto_Cobrado || 0) + entrega;
+    r.Saldo_Pendiente = Math.max(0, Number(r.Monto) - r.Monto_Cobrado);
+    r.Fecha_Real_Pago = fechaReal;
+    r.Dias_Demora_Real = diffDays(fechaReal, r.Fecha_Vencimiento);
+    r.Estado = (r.Saldo_Pendiente <= 0.009) ? "COBRADO" : "PARCIAL";
+    r.Status_CRM = (r.Estado === "COBRADO") ? "RESUELTO" : "EN PROCESO";
+
+    closeModal("modalCobro");
+    renderAll();
+    await pushToSheets({ action: "registrarCobro", ID_Op: r.ID_Op, Monto_Cobrado: r.Monto_Cobrado, Fecha_Real_Pago: r.Fecha_Real_Pago, Estado: r.Estado });
+  }
+
+  async function guardarNuevaOperacion() {
+    const nextNum = operaciones.length + 1;
+    const idOp = "OP-" + String(nextNum).padStart(3, "0");
+    const monto = Number(document.getElementById("newMonto").value || 0);
+    const nueva = {
+      ID_Op: idOp,
+      Fecha_Vencimiento: document.getElementById("newFecha").value || TODAY_STR,
+      Tipo: document.getElementById("newTipo").value,
+      ID_Cliente: "CLI-MANUAL",
+      Cliente_Entidad: document.getElementById("newCliente").value || "Sin especificar",
+      Detalle: document.getElementById("newDetalle").value || "Operación manual",
+      Categoria: document.getElementById("newCategoria").value,
+      Subcategoria: document.getElementById("newSubcategoria").value,
+      Moneda: document.getElementById("newMoneda").value,
+      Monto: monto,
+      Monto_Cobrado: 0,
+      Saldo_Pendiente: monto,
+      Fecha_Real_Pago: "",
+      Dias_Demora_Real: "",
+      Operador: document.getElementById("newOperador").value,
+      Estado: "PENDIENTE",
+      Status_CRM: "EN PROCESO",
+      Telefono_WA: document.getElementById("newTelefono").value.replace(/\D/g, ""),
+      Banco: document.getElementById("newBanco").value
+    };
+    operaciones.unshift(nueva);
+    closeModal("modalNewOp");
+    renderAll();
+    await pushToSheets({ action: "crearOperacion", data: nueva });
+  }
+
+  function getScriptUrl() { return localStorage.getItem("crm_sheets_url") || ""; }
+
+  function updateSyncBadge() {
+    const url = getScriptUrl();
+    const el = document.getElementById("syncStatus");
+    if (url) {
+      el.textContent = "🟢 Conectado a Google Sheets";
+      el.classList.add("connected");
+    } else {
+      el.textContent = "Modo Local (Sin vincular)";
+      el.classList.remove("connected");
+    }
+  }
+
+  function saveScriptUrl() {
+    const val = document.getElementById("inputScriptUrl").value.trim();
+    localStorage.setItem("crm_sheets_url", val);
+    closeModal("modalConfig");
+    updateSyncBadge();
+    if (val) syncFromSheets();
+  }
+
+  async function syncFromSheets() {
+    const url = getScriptUrl();
+    if (!url) { openModal("modalConfig"); return; }
+    const el = document.getElementById("syncStatus");
+    el.textContent = "⏳ Sincronizando...";
+    try {
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json.operaciones && json.operaciones.length) operaciones = json.operaciones;
+      if (json.clientes && json.clientes.length) clientes = json.clientes;
+      renderAll();
+      updateSyncBadge();
+    } catch (err) {
+      el.textContent = "⚠️ Error de red / CORS";
+      console.error(err);
+    }
+  }
+
+  async function pushToSheets(payload) {
+    const url = getScriptUrl();
+    if (!url) return;
+    try {
+      await fetch(url, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) { console.error(e); }
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("inputScriptUrl").value = getScriptUrl();
+    updateSyncBadge();
+    renderAll();
+    if (getScriptUrl()) syncFromSheets();
+  });
+</script>
+</body>
+</html>
