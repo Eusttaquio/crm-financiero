@@ -982,10 +982,9 @@
     const defaultBanco = document.getElementById("batchBancoDefault").value;
     if (!raw) return;
 
-    const lines = raw.split(/?
-/).filter(l => l.trim());
+    const lines = raw.split(/\r?\n/).filter(l => l.trim());
     batchItems = lines.map((line, idx) => {
-      const parts = line.includes("	") ? line.split("	") : line.split(";");
+      const parts = line.includes("\t") ? line.split("\t") : line.split(";");
       const fecha = normalizeDateInput(parts[0] || TODAY_STR);
       const detalle = (parts[1] || `VALOR #${idx + 1}`).trim();
       let banco = defaultBanco;
